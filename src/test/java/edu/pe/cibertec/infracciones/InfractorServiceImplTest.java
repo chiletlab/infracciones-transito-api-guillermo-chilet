@@ -5,6 +5,7 @@ import edu.pe.cibertec.infracciones.model.Infractor;
 import edu.pe.cibertec.infracciones.model.Multa;
 import edu.pe.cibertec.infracciones.repository.InfractorRepository;
 import edu.pe.cibertec.infracciones.repository.MultaRepository;
+import edu.pe.cibertec.infracciones.repository.VehiculoRepository;
 import edu.pe.cibertec.infracciones.service.impl.InfractorServiceImpl;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -25,6 +26,9 @@ public class InfractorServiceImplTest {
 
     @Mock
     private InfractorRepository infractorRepository;
+
+    @Mock
+    private VehiculoRepository vehiculoRepository;
 
     @Mock
     private MultaRepository multaRepository;
