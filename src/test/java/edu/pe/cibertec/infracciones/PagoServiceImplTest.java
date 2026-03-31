@@ -10,6 +10,7 @@ import edu.pe.cibertec.infracciones.service.impl.PagoServiceImpl;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -57,6 +58,31 @@ public class PagoServiceImplTest {
         verify(multaRepository, times(1)).findById(1L);
         verify(pagoRepository).save(any(Pago.class));
         verify(multaRepository).save(multa);
+    }
+
+    @Test
+    @DisplayName("Should apply surcharge when fine is paid after due date")
+    void givenExpiredFine_whenProcesarPago_thenApplyRecargoUsingCaptor() {
+        Multa multa = new Multa();
+        multa.setId(1L);
+        multa.setMonto(500.0);
+        multa.setFechaEmision(LocalDate.now().minusDays(12));
+        multa.setFechaVencimiento(LocalDate.now().minusDays(2));
+        multa.setEstado(EstadoMulta.PENDIENTE);
+
+        when(multaRepository.findById(1L)).thenReturn(Optional.of(multa));
+
+        ArgumentCaptor<Pago> captor = ArgumentCaptor.forClass(Pago.class);
+
+        pagoService.procesarPago(1L);
+
+        verify(pagoRepository, times(1)).save(captor.capture());
+
+        Pago pagoGuardado = captor.getValue();
+
+        assertEquals(75.0, pagoGuardado.getRecargo());
+        assertEquals(0.0, pagoGuardado.getDescuentoAplicado());
+        assertEquals(575.0, pagoGuardado.getMontoPagado());
     }
 
 }
